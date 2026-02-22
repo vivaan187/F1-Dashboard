@@ -1,8 +1,8 @@
 # F1 Dashboard
 
-I’ve built this F1 Dashboard to explore and visualize Formula 1 data in an interactive, hands-on way. The goal was to create a tool where race results, driver performance, and telemetry data come alive — all in one dashboard. It’s built using Python, FastF1, Flask, and Plotly, combining live session data with predictive insights to understand races beyond just the final results.
+I’ve built this F1 Dashboard to explore and visualize Formula 1 data in an interactive, hands-on way. The goal was to create a tool where race results, driver performance, and telemetry data come alive — all in one dashboard. It’s built using FastF1, Flask, and Plotly, combining live session data with predictive insights to understand races beyond just the final results.
 
-This project started as a way for me to practice real-world data analysis, visualization, and web development, but it has grown into a full-fledged dashboard that can display race weekends, qualifying sessions, and telemetry-based car tracking. The repository is designed as a showcase: you can see how it works through screenshots, interactive demos with sample data, and the web interface, while the core AI and predictive scripts remain proprietary.
+This project started as a way for me to practice real-world data analysis, visualization, and web development, but it has grown into a full-fledged dashboard that can display race weekends, qualifying sessions, and telemetry-based car tracking. The repository isn't open for everyone to use yet, as I still have to tweak some things. So just look around and if you have any questions you can always ask me.
 
 ## Current Features
 
@@ -29,6 +29,21 @@ Heatmaps and advanced telemetry comparisons
 Interactive dashboards for season-wide performance analysis
 
 Integration with additional motorsport datasets for deeper insights
+
+Here are some screenshots of how it looks right now:
+
+![Homepage screenshot](static/Homepage.png)
+
+![Race finishing order table](static/Race_table.png)
+
+![Race position change graph](static/Race_position_change.png)
+
+![Fuel corrected race pace comparison](static/Fuel_corrected_race_pace_comparison.png)
+
+![Tyre strategies](static/Tyre_strategies.png)
+
+![Qualifying lap replay](static/Quali_lap_replay_screenshot.png)
+
 
 The dashboard is modular, with clear separation between data extraction, analysis, and visualization. Even though some scripts are still in development, the current setup lets you explore sample data safely and see how telemetry and race analytics can be visualized effectively.
 
