@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Dashboard - Race Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0d0d0d;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+        .card {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            width: 90%;
+            max-width: 900px;
+            overflow-x: visible;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: monospace;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #e10600;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #2a2a2a;
+        }
+        tr:nth-child(odd) {
+            background-color: #1a1a1a;
+        }
+
+        a {
+            margin-top: 20px;
+            display: inline-block;
+            background-color: #e10600;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-family: monospace;
+        }
+        a:hover {
+            background-color: #b30500;
+        }
+
+        /* Highlighting styles */
+        .purple {
+            color: #b94cff; /* F1 purple */
+            font-weight: bold;
+        }
+        .green {
+            color: #00ff87; /* F1 green */
+            font-weight: bold;
+        }        
+    </style>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<script>
+function DriverVSDriverPacePlot() {
+    const driverA = document.getElementById("driverA").value;
+    const driverB = document.getElementById("driverB").value;
+
+    fetch(`/driver_vs_driver_pace_plot?year={{year}}&gp={{gp_name}}&a=${driverA}&b=${driverB}`)
+        .then(res => res.json())
+        .then(fig => {
+            Plotly.newPlot("driver-pace-container", fig.data, fig.layout);
+        });
+}
+</script>
+
+<body>
+    <header>F1 Dashboard - {{year}} {{gp_name}} Race Results</header>
+
+    <img src="static/{{track_img}}" alt="Track layout for {{gp_name}}">
+
+    <!-- Results table -->
+    <div class="card" style="width:90%; margin-top:20px;">
+        <h3 style="font-family: monospace;">Race Results</h3>
+        {{ table | safe }}
+    </div>
+
+    <!-- Plotly interactive race dashboard -->
+    <div class="card" style="width:90%; margin-top:20px;">
+        <h3 style="font-family: monospace; align-self: center; font-size: x-large;">Race Dashboard</h3>
+        <!-- Plotly divs returned by combined_plotly_race_dashboard -->
+        {{ plots_html | safe }}
+        <div style="display:flex; gap:20px; justify-content:center; margin-bottom:15px;">
+
+            <h4 style="font-family: monospace; align-self: center; font-size: x-large;">Driver VS Driver</h4>
+            
+            <select id="driverA" style="padding:6px; font-family:monospace;">
+                {% for d in drivers %}
+                    <option value="{{ d }}">{{ d }}</option>
+                {% endfor %}
+            </select>
+
+            <select id="driverB" style="padding:6px; font-family:monospace;">
+                {% for d in drivers %}
+                    <option value="{{ d }}">{{ d }}</option>
+                {% endfor %}
+            </select>
+
+            <button onclick="DriverVSDriverPacePlot()"
+                    style="padding:6px 12px; font-family:monospace;
+                        background:#e10600; color:white; border:none; border-radius:6px;">
+                Compare
+            </button>
+
+    </div>
+
+    <div id="driver-pace-container"></div>
+
+    </div>
+
+    <!-- Tyre strategies -->
+    <div class="card" style="width:90%; margin-top:20px">
+        <h3 style="font-family: monospace;align-self: center; font-size: x-large;">Tyre Strategies</h3>
+        <img src="data:image/png;base64,{{ tyre_strat }}" class="img-fluid" alt="F1 plot" loading="lazy">
+    </div>
+
+    <a href="/">⬅ Back to Home</a>
+</body>
+</html>

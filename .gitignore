@@ -1,0 +1,27 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+.env/
+venv/
+
+# Sensitive or temporary folders
+cache/
+IMP/
+Miscellaneous/
+
+# AI data files (if proprietary)
+AI/factors.txt
+*.h5
+*.pkl
+*.pt
+*.csv  # ignore large raw data, keep sample/demo CSVs if needed
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# System files
+.DS_Store
+Thumbs.db

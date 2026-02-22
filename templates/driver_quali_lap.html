@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>F1 Dashboard - Lap Telemetry</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #0c0c0c;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            font-size: 2rem;
+            font-family: monospace;
+            font-weight: bold;
+            border-bottom: 2px solid #e10600;
+        }
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        button {
+            background: #e10600;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { background: #b30500; }
+        .timer { font-family: monospace; font-size: 1.2rem; }
+        canvas { background: #1e1e1e; border-radius: 10px; }
+        .dashboard { margin-top: 20px; width: 1200px; display: grid; grid-template-columns: 3fr 1.2fr; grid-template-rows: auto auto auto; gap: 25px; }
+        .track-panel { grid-row: 1 / span 3; background: #151515; padding: 20px; border-radius: 14px; box-shadow: 0 0 20px rgba(225,6,0,0.2); }
+        .side-panel { display: flex; flex-direction: column; gap: 20px; }
+        .telemetry-box { background: #151515; padding: 20px; border-radius: 14px; box-shadow: 0 0 20px rgba(225,6,0,0.2); }
+        .gear-display { font-size: 3rem; font-weight: bold; text-align: center; color: #e10600; }
+        .speed-display { font-size: 2rem; text-align: center; font-family: monospace; }
+        .bar { height: 22px; margin-bottom: 15px; background: #333; border-radius: 6px; overflow: hidden; }
+        .bar-fill { height: 100%; width: 0%; }
+        .throttle-fill { background: #00c853; }
+        .brake-fill { background: #d50000; }
+    </style>
+</head>
+<body>
+
+<header>{{year}} {{gp}} – {{driver}} Qualifying Lap</header>
+
+<div class="controls">
+    <button id="playPauseBtn">Pause</button>
+    <div class="timer">Time: <span id="liveTime">0.000</span>s</div>
+</div>
+
+<div class="dashboard">
+
+    <div class="track-panel">
+        <canvas id="trackCanvas" width="850" height="550"></canvas>
+    </div>
+
+    <div class="side-panel">
+
+        <div class="telemetry-box" style="text-align:center;">
+            <canvas id="speedCanvas" width="300" height="180"></canvas>
+        </div>
+
+        <div class="telemetry-box">
+            <div class="gear-display">
+                GEAR <br>
+                <span id="liveGear">0</span>
+            </div>
+
+            <div class="speed-display">
+                <span id="liveSpeed">0</span> km/h
+            </div>
+
+            <div style="margin-top:15px; text-align:center; font-family:monospace;">
+                DRS:
+                <span id="drsStatus" style="padding:4px 10px; border-radius:6px; background:#333;">
+                    OFF
+                </span>
+            </div>
+        </div>
+        <div class="telemetry-box">
+            <div style="font-family: monospace; font-size: 1.1rem;">Throttle</div>
+            <div class="bar">
+                <div id="throttleBar" class="bar-fill throttle-fill"></div>
+            </div>
+
+            <div style="font-family: monospace; font-size: 1.1rem;">Brake</div>
+            <div class="bar">
+                <div id="brakeBar" class="bar-fill brake-fill"></div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const canvas = document.getElementById("trackCanvas");
+const ctx = canvas.getContext("2d");
+const speedCanvas = document.getElementById("speedCanvas");
+const speedCtx = speedCanvas.getContext("2d");
+
+let isPaused = false;
+let animationFrame;
+let animationStart = null;
+let elapsedBeforePause = 0;
+let currentIndex = 0;
+
+fetch(`/telemetry?year={{year}}&gp={{gp}}&driver={{driver}}`)
+.then(res => res.json())
+.then(data => {
+    const { x, y, t, speed, throttle, brake, gear, rpm, drs } = data;
+
+    const minX = Math.min(...x), maxX = Math.max(...x);
+    const minY = Math.min(...y), maxY = Math.max(...y);
+    const paddingTrack = 50;
+    const scaledX = x.map(v => paddingTrack + ((v - minX) / (maxX - minX)) * (canvas.width - 2 * paddingTrack));
+    const scaledY = y.map(v => canvas.height - (paddingTrack + ((v - minY) / (maxY - minY)) * (canvas.height - 2 * paddingTrack)));
+
+    const minSpeed = Math.min(...speed), maxSpeed = Math.max(...speed);
+
+    function speedToColor(v) {
+        const ratio = (v - minSpeed) / (maxSpeed - minSpeed);
+        const r = Math.floor(255 * ratio);
+        const g = Math.floor(255 * (1 - ratio));
+        return `rgb(${r},${g},0)`;
+    }
+
+    function drawTrack() {
+        for (let i = 1; i < scaledX.length; i++) {
+            ctx.beginPath();
+            ctx.moveTo(scaledX[i - 1], scaledY[i - 1]);
+            ctx.lineTo(scaledX[i], scaledY[i]);
+            ctx.strokeStyle = speedToColor(speed[i]);
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+    }
+
+    function drawSpeedTrace(currentElapsed) {
+        speedCtx.clearRect(0, 0, speedCanvas.width, speedCanvas.height);
+        const w = speedCanvas.width, h = speedCanvas.height, padding = 35;
+
+        // axes
+        speedCtx.strokeStyle = "#888"; speedCtx.lineWidth = 1;
+        speedCtx.beginPath(); speedCtx.moveTo(padding, 10); speedCtx.lineTo(padding, h - padding); speedCtx.stroke();
+        speedCtx.beginPath(); speedCtx.moveTo(padding, h - padding); speedCtx.lineTo(w - 10, h - padding); speedCtx.stroke();
+        speedCtx.fillStyle = "#aaa"; speedCtx.font = "10px monospace";
+
+        const yTicks = 5;
+        for (let i = 0; i <= yTicks; i++) {
+            const value = (maxSpeed / yTicks) * i;
+            const yPos = h - padding - (value / maxSpeed) * (h - padding - 10);
+            speedCtx.beginPath(); speedCtx.moveTo(padding - 5, yPos); speedCtx.lineTo(padding, yPos); speedCtx.stroke();
+            speedCtx.fillText(Math.round(value), 2, yPos + 3);
+        }
+
+        const totalTime = t[t.length - 1], xTicks = 5;
+        for (let i = 0; i <= xTicks; i++) {
+            const value = (totalTime / xTicks) * i;
+            const xPos = padding + (value / totalTime) * (w - padding - 10);
+            speedCtx.beginPath(); speedCtx.moveTo(xPos, h - padding); speedCtx.lineTo(xPos, h - padding + 5); speedCtx.stroke();
+            speedCtx.fillText(value.toFixed(1), xPos - 10, h - padding + 15);
+        }
+
+        // trace
+        speedCtx.beginPath();
+        for (let i = 0; i < t.length; i++) {
+            if (t[i] > currentElapsed) break;
+            const xPos = padding + (t[i] / totalTime) * (w - padding - 10);
+            const yPos = h - padding - (speed[i] / maxSpeed) * (h - padding - 10);
+            if (i === 0) speedCtx.moveTo(xPos, yPos); else speedCtx.lineTo(xPos, yPos);
+        }
+        speedCtx.strokeStyle = "#00ff88"; speedCtx.lineWidth = 2; speedCtx.stroke();
+    }
+
+    function animate(timestamp) {
+        if (!animationStart) animationStart = timestamp;
+        let elapsed = (timestamp - animationStart) / 1000 + elapsedBeforePause;
+        const totalTime = t[t.length - 1];
+        if (elapsed >= totalTime) elapsed = totalTime;
+
+        // advance index
+        while (currentIndex < t.length - 1 && elapsed >= t[currentIndex + 1]) currentIndex++;
+
+        const i0 = currentIndex, i1 = Math.min(currentIndex + 1, t.length - 1);
+        const t0 = t[i0], t1 = t[i1];
+        const alpha = t1 - t0 === 0 ? 0 : (elapsed - t0) / (t1 - t0);
+
+        // interpolate all values
+        const interpX = scaledX[i0] + alpha * (scaledX[i1] - scaledX[i0]);
+        const interpY = scaledY[i0] + alpha * (scaledY[i1] - scaledY[i0]);
+        const interpSpeed = speed[i0] + alpha * (speed[i1] - speed[i0]);
+        const interpThrottle = throttle[i0] + alpha * (throttle[i1] - throttle[i0]);
+        const interpBrake = brake[i0] + alpha * (brake[i1] - brake[i0]);
+        const currentGear = gear[i0], drsActive = drs[i0];
+
+        // update DOM
+        document.getElementById("liveTime").textContent = elapsed.toFixed(3);
+        document.getElementById("liveSpeed").textContent = interpSpeed.toFixed(1);
+        document.getElementById("liveGear").textContent = currentGear;
+        document.getElementById("throttleBar").style.width = interpThrottle + "%";
+        document.getElementById("brakeBar").style.width = interpBrake * 100 + "%";
+
+        // track & car
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawTrack();
+        ctx.beginPath();
+        ctx.arc(interpX, interpY, 7, 0, 2 * Math.PI);
+        ctx.fillStyle = "#ffffff"; ctx.fill();
+
+        // DRS
+        const drsEl = document.getElementById("drsStatus");
+        if ([8,10,12,14].includes(drsActive)) {
+            drsEl.textContent = "ACTIVE"; drsEl.style.background = "#00c853"; drsEl.style.color = "black";
+        } else { drsEl.textContent = "OFF"; drsEl.style.background = "#333"; drsEl.style.color = "white"; }
+
+        drawSpeedTrace(elapsed);
+
+        if (!isPaused && elapsed < totalTime) animationFrame = requestAnimationFrame(animate);
+    }
+
+    document.getElementById("playPauseBtn").addEventListener("click", () => {
+        if (isPaused) {
+            animationStart = performance.now();
+            isPaused = false;
+            animationFrame = requestAnimationFrame(animate);
+            document.getElementById("playPauseBtn").textContent = "Pause";
+        } else {
+            cancelAnimationFrame(animationFrame);
+            elapsedBeforePause += (performance.now() - animationStart) / 1000;
+            isPaused = true;
+            document.getElementById("playPauseBtn").textContent = "Play";
+        }
+    });
+
+    animationFrame = requestAnimationFrame(animate);
+});
+</script>
+
+</body>
+</html>

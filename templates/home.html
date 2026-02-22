@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>F1 Dashboard - Home</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0d0d0d;
+      color: white;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    header { font-size: 2.5rem; font-weight: bold; margin-top: 30px; }
+    .card {
+      background-color: #1a1a1a;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      text-align: center;
+      width: 500px;
+    }
+    .form-container {
+      margin-top: 30px;
+      background-color: #1a1a1a;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+    }
+    label { display: block; margin: 10px 0 5px; }
+    select, input, button {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      background-color: #e10600;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover { background-color: #b30500; }
+    .general_font { font-family: monospace; }
+    .tables-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 40px;
+      width: 90%;
+    }
+    .table-card {
+      background-color: #1a1a1a;
+      padding: 20px;
+      border-radius: 10px;
+      width: 45%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-family: monospace;
+    }
+    th, td { padding: 10px; border-bottom: 1px solid #333; text-align: left; }
+    th { background-color: #e10600; color: white; }
+    tr:hover { background-color: #333; }
+    .championship-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: monospace;
+      margin-top: 15px;
+    }
+    .championship-table th {
+      background-color: #e10600;
+      color: white;
+      padding: 10px;
+      text-align: left;
+    }
+    .championship-table td { padding: 10px; border-bottom: 1px solid #333; }
+    .championship-table tr:hover { background-color: #333; }
+
+    /* Upcoming race image tweaks */
+    .track-image-wrapper {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      margin-top:15px;
+    }
+    .track-image {
+      width:80%;
+      max-width:420px;
+      height:auto;
+      border-radius:8px;
+      object-fit:contain;
+      box-shadow:0 0 10px rgba(255,255,255,0.06);
+    }
+
+    /* description now larger and centered below image */
+    .race-desc {
+      margin-top:14px;
+      font-family: monospace;
+      color: #ddd;
+      line-height: 1.45;
+      font-size: 1.05rem;    /* increased size */
+      text-align: center;    /* centered under image */
+      padding: 0 12px;       /* breathing room on small screens */
+    }
+  </style>
+</head>
+<body>
+  <header class="general_font">F1 Dashboard</header>
+  <h2 style="font-family: monospace; font-size:x-large;">By: A Verstappen Fan</h2>
+  <div class="card">
+    <p style="font-family: monospace; font-size:x-large;">All that you need about F1 data in one place</p>
+  </div>
+
+  <div class="form-container">
+    <h2 style="font-family: monospace; font-size: xx-large;">Select GP</h2>
+    <form action="/results" method="POST">
+      <label for="year" style="font-family: monospace; font-size:x-large;">Year:</label>
+      <input type="number" id="year" name="year" min="2022" max="2025" required size="8">
+
+      <label for="gp" style="font-family: monospace; font-size:x-large;">Grand Prix:</label>
+      <select id="gp" name="gp" required>
+        <option value="Australian Grand Prix">Australia</option>
+        <option value="Chinese Grand Prix">China</option>
+        <option value="Japanese Grand Prix">Japan</option>
+        <option value="Bahrain Grand Prix">Bahrain</option>
+        <option value="Saudi Arabian Grand Prix">Saudi Arabia</option>
+        <option value="Miami Grand Prix">Miami</option>
+        <option value="Emilia Romagna Grand Prix">Emilia Romagna</option>
+        <option value="Monaco Grand Prix">Monaco</option>
+        <option value="Barcelona Grand Prix">Barcelona</option>
+        <option value="Canadian Grand Prix">Canada</option>
+        <option value="Austrian Grand Prix">Austria</option>
+        <option value="British Grand Prix">Britain</option>
+        <option value="Belgian Grand Prix">Belgium</option>
+        <option value="Hungarian Grand Prix">Hungary</option>
+        <option value="Dutch Grand Prix">Netherlands</option>
+        <option value="Italian Grand Prix">Italy</option>
+        <option value="Spanish Grand Prix">Madrid</option>
+        <option value="Azerbaijan Grand Prix">Azerbaijan</option>
+        <option value="Singapore Grand Prix">Singapore</option>
+        <option value="United States Grand Prix">Austin</option>
+        <option value="Mexico City Grand Prix">Mexico</option>
+        <option value="São Paulo Grand Prix">Brazil</option>
+        <option value="Las Vegas Grand Prix">Las Vegas</option>
+        <option value="Qatar Grand Prix">Qatar</option>
+        <option value="Abu Dhabi Grand Prix">Abu Dhabi</option>
+      </select>
+
+      <label for="session" style="font-family: monospace; font-size:x-large;">Session:</label>
+      <select id="session" name="session" required>
+        <option value="FP1">Free Practice 1</option>
+        <option value="FP2">Free Practice 2</option>
+        <option value="FP3">Free Practice 3</option>
+        <option value="Q">Qualifying</option>
+        <option value="R">Race</option>
+      </select>
+
+      <button type="submit">Go</button>
+    </form>
+  </div>
+
+  <!-- Two championship tables -->
+  <div class="tables-container">
+    <!-- Driver's Championship -->
+    <div class="table-card">
+      <h2 style="font-family: monospace; font-size: xx-large;"> 2025 Driver's Championship</h2>
+      {{ drivers_table|safe }}
+    </div>
+
+    <!-- Constructor's Championship -->
+    <div class="table-card">
+      <h2 style="font-family: monospace; font-size: xx-large;"> 2025 Constructor's Championship</h2>
+      {{ constructors_table|safe }}
+    </div>
+  </div>
+
+  <div class="card" id="upcoming-race-card" style="width:90%; max-width:700px; margin-top:20px;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <p style="font-family: monospace; font-size:x-large; margin:0;">Upcoming Race</p>
+    </div>
+
+    <div id="countdown" style="margin-top:12px; font-family: monospace; font-size:1.2rem;">
+      <span id="cd-days">--</span>d
+      <span id="cd-hours">--</span>h
+      <span id="cd-mins">--</span>m
+      <span id="cd-secs">--</span>s
+    </div>
+
+    <div id="race-meta" style="margin-top:8px; color:#bbb; font-family:monospace; font-size:0.95rem;">
+      <div id="race-name">{{ next_race_name or "Loading next race..." }}</div>
+      <div id="race-timezone" style="margin-left:10px;"></div>
+    </div>
+
+    <!-- TRACK IMAGE (only show if image exists) -->
+    {% if next_race_image %}
+      <div class="track-image-wrapper">
+        <img
+          src="static/{{ next_race_image }}"
+          alt="Track layout for {{ next_race_name }}"
+          loading="lazy"
+          class="track-image"
+        >
+      </div>
+    {% endif %}
+
+    <!-- DESCRIPTION (moved below the image, larger font) -->
+    <div class="race-desc">
+      {{ next_race_description or "Description not available." }}
+    </div>
+  </div>
+
+  <script>
+    // Template-inserted values (Jinja)
+    const NEXT_RACE_ISO = "{{ next_race_iso | default('', true) }}";
+    const NEXT_RACE_NAME = "{{ next_race_name | default('', true) }}";
+
+    function pad(n){ return String(n).padStart(2,'0'); }
+
+    function startCountdown(isoString, displayName) {
+      if (!isoString) {
+        document.getElementById('race-name').textContent = "Next race date not available";
+        document.getElementById('countdown').style.display = "none";
+        return;
+      }
+
+      const target = new Date(isoString);
+      if (isNaN(target.getTime())) {
+        document.getElementById('race-name').textContent = "Invalid race date";
+        document.getElementById('countdown').style.display = "none";
+        return;
+      }
+
+      document.getElementById('race-name').textContent = displayName || "Next race";
+
+      document.getElementById('race-timezone').textContent = `Local time: ${target.toLocaleString()}`;
+
+      function tick() {
+        const now = new Date();
+        let diff = Math.max(0, target - now);
+        if (diff <= 0) {
+          document.getElementById('cd-days').textContent = "00";
+          document.getElementById('cd-hours').textContent = "00";
+          document.getElementById('cd-mins').textContent = "00";
+          document.getElementById('cd-secs').textContent = "00";
+          document.getElementById('race-name').textContent = (displayName || "Race") + " — STARTED";
+          return;
+        }
+        const seconds = Math.floor(diff / 1000);
+        const days = Math.floor(seconds / (3600*24));
+        const hours = Math.floor((seconds % (3600*24)) / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = Math.floor(seconds % 60);
+
+        document.getElementById('cd-days').textContent = pad(days);
+        document.getElementById('cd-hours').textContent = pad(hours);
+        document.getElementById('cd-mins').textContent = pad(mins);
+        document.getElementById('cd-secs').textContent = pad(secs);
+
+        requestAnimationFrame(tick);
+      }
+
+      tick();
+    }
+
+    startCountdown(NEXT_RACE_ISO, NEXT_RACE_NAME);
+  </script>
+</body>
+</html>

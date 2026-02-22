@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F1 Dashboard - Qualifying</title>
+  <style>
+    body {
+            font-family: Arial, sans-serif;
+            background-color: #0d0d0d;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+        .card {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            width: 90%;
+            max-width: 900px;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: monospace;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #e10600;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #2a2a2a;
+        }
+        tr:nth-child(odd) {
+            background-color: #1a1a1a;
+        }
+        a {
+            margin-top: 20px;
+            display: inline-block;
+            background-color: #e10600;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-family: monospace;
+        }
+        a:hover {
+            background-color: #b30500;
+        }
+        .driver-form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .driver-select {
+            background-color: #111;
+            color: white;
+            border: 2px solid #e10600;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-family: monospace;
+            font-size: 1rem;
+            min-width: 200px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .driver-select:hover {
+            border-color: #ff3b30;
+        }
+
+        .driver-select:focus {
+            outline: none;
+            box-shadow: 0 0 10px #e10600;
+        }
+
+        .driver-btn {
+            background-color: #e10600;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .driver-btn:hover {
+            background-color: #b30500;
+            transform: scale(1.05);
+        }
+  </style>
+</head>
+
+<script>
+function DriverTelemtryVisualised() {
+    const driver = document.getElementById("driverA").value;
+}
+</script>
+
+<body>
+    <header >
+    F1 Dashboard - {{year}} {{gp_name}} Qualifying Results
+    </header>
+
+    <img src="static/{{track_img}}" alt = "Track layout for {{gp_name}}">
+
+    <div class="card">
+        <p style="font-family: monospace;align-self: center; font-size: x-large; color: white;">Qualifying Lap Times</p>
+        {{ table|safe }}
+    </div>
+
+    <div class="card">
+        <p style="font-family: monospace;align-self: center; font-size: x-large; color: white;">Qualifying Session Times</p>
+        {{ qstable|safe }}
+    </div>
+
+    <div class="card">
+        <p style="font-family: monospace;align-self: center; font-size: x-large; color: white;">Driver Lap Visualisation</p>
+
+        <form action="/driver_quali_lap_visualised" method="get" class="driver-form">
+            <input type="hidden" name="year" value="{{year}}">
+            <input type="hidden" name="gp" value="{{gp_name}}">
+            
+            <select name="driver" class="driver-select">
+                {% for d in drivers %}
+                    <option value="{{ d }}">{{ d }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="driver-btn">
+                Visualise Lap
+            </button>
+        </form>
+    </div>    
+
+    <div class="card">
+        <p style="font-family: monospace;align-self: center; font-size: x-large; color: white;">Driver VS Driver Lap Comparison</p>
+    </div>
+
+    <a href="/">⬅ Back to Home</a>
+
+</body>
+</html>
+
+
