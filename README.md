@@ -1,10 +1,10 @@
-F1 Dashboard
+# F1 Dashboard
 
 I’ve built this F1 Dashboard to explore and visualize Formula 1 data in an interactive, hands-on way. The goal was to create a tool where race results, driver performance, and telemetry data come alive — all in one dashboard. It’s built using Python, FastF1, Flask, and Plotly, combining live session data with predictive insights to understand races beyond just the final results.
 
 This project started as a way for me to practice real-world data analysis, visualization, and web development, but it has grown into a full-fledged dashboard that can display race weekends, qualifying sessions, and telemetry-based car tracking. The repository is designed as a showcase: you can see how it works through screenshots, interactive demos with sample data, and the web interface, while the core AI and predictive scripts remain proprietary.
 
-Current Features
+## Current Features
 
 Visualize race results and qualifying outcomes
 
@@ -16,7 +16,7 @@ FastF1 integration for session data extraction
 
 Simple Flask-based web interface with templates and static visuals
 
-Coming Soon / Planned Features
+## Coming Soon / Planned Features
 
 AI-driven race predictions based on driver and team factors
 
